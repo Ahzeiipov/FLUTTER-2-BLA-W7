@@ -1,94 +1,85 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:week_3_blabla_project/ui/widgets/errors/bla_error_screen.dart';
 
 import '../../../model/ride/ride_pref.dart';
-// import '../../../service/ride_prefs_service.dart';
 import '../../theme/theme.dart';
 import '../../../provider/ride_preferences_provider.dart';
 import '../../../utils/animations_util.dart';
 import '../rides/rides_screen.dart';
 import 'widgets/ride_pref_form.dart';
 import 'widgets/ride_pref_history_tile.dart';
+import '../../../provider/async_value.dart';
 
 const String blablaHomeImagePath = 'assets/images/blabla_home.png';
 
-///
-/// This screen allows user to:
-/// - Enter his/her ride preference and launch a search on it
-/// - Or select a last entered ride preferences and launch a search on it
-///
 class RidePrefScreen extends StatelessWidget {
   const RidePrefScreen({super.key});
 
   // This method will be called when a ride preference is selected
   void onRidePrefSelected(
       BuildContext context, RidePreference newPreference) async {
-    // 1 - Update the current preference
-    // RidePrefService.instance.setCurrentPreference(newPreference);
     final provider = context.read<RidesPreferencesProvider>();
     provider.setCurrentPreferrence(newPreference);
 
-    
-    // 2 - Navigate to the rides screen (with a bottom-to-top animation)
+    // Navigate to the rides screen (with a bottom-to-top animation)
     await Navigator.of(context)
-        .push(AnimationUtils.createBottomToTopRoute(RidesScreen()));
-
-    // 3 - Handle the updated state externally (e.g., using state management)
-    // Instead of calling setState, notify the parent or use a state management solution
+        .push(AnimationUtils.createBottomToTopRoute(const RidesScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
-    // Get the current and past preferences directly from the service
     final ridePreferenceProvider = context.watch<RidesPreferencesProvider>();
     final currentRidePreference = ridePreferenceProvider.currentPreference;
-    final pastPreferences = ridePreferenceProvider.preferencesHistory;
+    final pastPreferences = ridePreferenceProvider.pastPreferences;
 
     return Stack(
       children: [
-        // 1 - Background Image
-        BlaBackground(),
+        const BlaBackground(),
 
-        // 2 - Foreground content
+        // Foreground content
         Column(
           children: [
-            SizedBox(height: BlaSpacings.m),
+            const SizedBox(height: BlaSpacings.m),
             Text(
               "Your pick of rides at low price",
               style: BlaTextStyles.heading.copyWith(color: Colors.white),
             ),
-            SizedBox(height: 100),
+            const SizedBox(height: 100),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: BlaSpacings.xxl),
+              margin: const EdgeInsets.symmetric(horizontal: BlaSpacings.xxl),
               decoration: BoxDecoration(
-                color: Colors.white, // White background
-                borderRadius: BorderRadius.circular(16), // Rounded corners
+                color: Colors.white, 
+                borderRadius: BorderRadius.circular(16), 
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // 2.1 Display the Form to input the ride preferences
                   RidePrefForm(
-                      initialPreference: currentRidePreference,
-                      onSubmit: (preference) =>
-                          onRidePrefSelected(context, preference)),
-                  SizedBox(height: BlaSpacings.m),
-
-                  // 2.2 Optionally display a list of past preferences
-                  SizedBox(
-                    height: 200, // Set a fixed height
-                    child: ListView.builder(
-                      shrinkWrap: true, // Fix ListView height issue
-                      physics: AlwaysScrollableScrollPhysics(),
-                      itemCount: pastPreferences.length,
-                      itemBuilder: (ctx, index) => RidePrefHistoryTile(
-                        ridePref: pastPreferences[index],
-                        onPressed: () =>
-                            onRidePrefSelected(context, pastPreferences[index]),
-                      ),
-                    ),
+                    initialPreference: currentRidePreference,
+                    onSubmit: (preference) =>
+                        onRidePrefSelected(context, preference),
                   ),
+                  const SizedBox(height: BlaSpacings.m),
+                  if (pastPreferences.state == AsyncValueState.loading)
+                    const BlaError(message: 'Loading...')
+                  else if (pastPreferences.state == AsyncValueState.error)
+                    const BlaError(message: 'No connection. Try later.')
+                  else if (pastPreferences.state == AsyncValueState.success)
+                    SizedBox(
+                      height: 200, 
+                      child: ListView.builder(
+                        shrinkWrap: true, 
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: pastPreferences.data?.length ?? 0,
+                        itemBuilder: (ctx, index) => RidePrefHistoryTile(
+                          ridePref: pastPreferences.data![index],
+                          onPressed: () =>
+                              onRidePrefSelected(context, pastPreferences.data![index]),
+                        ),
+                      ),
+                    )
+                  else
+                    const SizedBox(),
                 ],
               ),
             ),
@@ -109,7 +100,7 @@ class BlaBackground extends StatelessWidget {
       height: 340,
       child: Image.asset(
         blablaHomeImagePath,
-        fit: BoxFit.cover, // Adjust image fit to cover the container
+        fit: BoxFit.cover,
       ),
     );
   }
