@@ -10,7 +10,7 @@ import '../../theme/theme.dart';
 import '../../../utils/animations_util.dart';
 import 'widgets/ride_pref_modal.dart';
 import 'widgets/rides_tile.dart';
-import '../../../provider/ride_preferences_provider.dart';
+import '../../provider/ride_preferences_provider.dart';
 
 ///
 ///  The Ride Selection screen allow user to select a ride, once ride preferences have been defined.

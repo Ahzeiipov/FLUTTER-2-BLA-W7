@@ -4,12 +4,12 @@ import 'package:week_3_blabla_project/ui/widgets/errors/bla_error_screen.dart';
 
 import '../../../model/ride/ride_pref.dart';
 import '../../theme/theme.dart';
-import '../../../provider/ride_preferences_provider.dart';
+import '../../provider/ride_preferences_provider.dart';
 import '../../../utils/animations_util.dart';
 import '../rides/rides_screen.dart';
 import 'widgets/ride_pref_form.dart';
 import 'widgets/ride_pref_history_tile.dart';
-import '../../../provider/async_value.dart';
+import '../../provider/async_value.dart';
 
 const String blablaHomeImagePath = 'assets/images/blabla_home.png';
 
