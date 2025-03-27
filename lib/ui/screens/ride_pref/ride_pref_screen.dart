@@ -38,52 +38,66 @@ class RidePrefScreen extends StatelessWidget {
         const BlaBackground(),
 
         // Foreground content
-        Column(
-          children: [
-            const SizedBox(height: BlaSpacings.m),
-            Text(
-              "Your pick of rides at low price",
-              style: BlaTextStyles.heading.copyWith(color: Colors.white),
-            ),
-            const SizedBox(height: 100),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: BlaSpacings.xxl),
-              decoration: BoxDecoration(
-                color: Colors.white, 
-                borderRadius: BorderRadius.circular(16), 
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: BlaSpacings.m),
+              Text(
+                "Your pick of rides at low price",
+                style: BlaTextStyles.heading.copyWith(color: Colors.white),
               ),
-              child: Column(
-                children: [
-                  RidePrefForm(
-                    initialPreference: currentRidePreference,
-                    onSubmit: (preference) =>
-                        onRidePrefSelected(context, preference),
-                  ),
-                  const SizedBox(height: BlaSpacings.m),
-                  if (pastPreferences.state == AsyncValueState.loading)
-                    const BlaError(message: 'Loading...')
-                  else if (pastPreferences.state == AsyncValueState.error)
-                    const BlaError(message: 'No connection. Try later.')
-                  else if (pastPreferences.state == AsyncValueState.success)
-                    SizedBox(
-                      height: 200, 
-                      child: ListView.builder(
-                        shrinkWrap: true, 
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        itemCount: pastPreferences.data?.length ?? 0,
-                        itemBuilder: (ctx, index) => RidePrefHistoryTile(
-                          ridePref: pastPreferences.data![index],
-                          onPressed: () =>
-                              onRidePrefSelected(context, pastPreferences.data![index]),
+              const SizedBox(height: 100),
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: BlaSpacings.xxl),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    RidePrefForm(
+                      initialPreference: currentRidePreference,
+                      onSubmit: (preference) =>
+                          onRidePrefSelected(context, preference),
+                    ),
+                    const SizedBox(height: BlaSpacings.m),
+                    if (pastPreferences.state == AsyncValueState.loading)
+                      const SizedBox(
+                        height: 15, // Ensure it takes some space
+                        child: Center(
+                            child: BlaError(
+                                message:
+                                    'loading’') // Better than error message
+                            ),
+                      )
+                    else if (pastPreferences.state == AsyncValueState.error)
+                      const SizedBox(
+                        height: 15,
+                        child: Center(
+                          child: BlaError(message: 'No connection. Try later.'),
                         ),
-                      ),
-                    )
-                  else
-                    const SizedBox(),
-                ],
+                      )
+                    else if (pastPreferences.state == AsyncValueState.success)
+                      SizedBox(
+                        height: 200,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: pastPreferences.data?.length ?? 0,
+                          itemBuilder: (ctx, index) => RidePrefHistoryTile(
+                            ridePref: pastPreferences.data![index],
+                            onPressed: () => onRidePrefSelected(
+                                context, pastPreferences.data![index]),
+                          ),
+                        ),
+                      )
+                    else
+                      const SizedBox(),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ],
     );
